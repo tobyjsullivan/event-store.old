@@ -16,6 +16,7 @@ import (
     "errors"
     "log"
     "github.com/aws/aws-sdk-go/aws/credentials"
+    "encoding/base64"
 )
 
 var (
@@ -100,6 +101,12 @@ func writeNextEventHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    if err := verifyBase64(req.Data); err != nil {
+        logger.Println("Invalid base 64.", err.Error())
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
     logger.Println("Storing event.")
     if err := storeNextEvent(entityId, &req); err != nil {
         logger.Println("Error storing event.", err.Error())
@@ -135,6 +142,12 @@ func writeEventWithVersionHandler(w http.ResponseWriter, r *http.Request) {
     var req addEventRequest
     if err := decoder.Decode(&req); err != nil {
         logger.Println("Failed to parse request.", err.Error())
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    if err := verifyBase64(req.Data); err != nil {
+        logger.Println("Invalid base 64.", err.Error())
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
@@ -271,6 +284,12 @@ func getLastVersion(entityId string) (int, error) {
     logger.Println("Determined last version.", version)
 
     return version, nil
+}
+
+func verifyBase64(data string) error {
+    _, err := base64.StdEncoding.DecodeString(data)
+
+    return err
 }
 
 type versionConflictError struct {
