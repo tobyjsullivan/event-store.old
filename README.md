@@ -7,14 +7,45 @@ service. No such query service has been built at time of writing.
 
 ## Getting Started
 
-This API should work with minimal setup.
+### AWS Configuration
 
-1. Install gin
-  * `go get github.com/codegangsta/gin`
-2. Run with gin (ensure your pwd is this cloned repo)
-  * `gin`
-3. Test the server
-  * `curl http://127.0.0.1:3000`
+This service has a dependency on DynamoDB.
+
+#### Create a DynamoDB table as your event store
+
+The DynamoDB table will require a Primary Partition Key called `Entity
+ID` (type String) and a Primary Sort Key `Version` (type Number). These
+column names are not presently configurable.
+
+Specify the name of your table in the `DYNAMODB_TABLE` environment
+variable.
+
+Specify the region of your table in the `AWS_REGION` environment
+variable.
+
+#### IAM Credentials
+
+Create IAM credentials for the service with the following permissions:
+
+- DynamoDB Table
+  - PutItem
+  - Query
+
+Specify the credentials in the `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY` environment variables.
+
+### Running with Docker
+
+1. Build the Docker image
+  - `docker build -t event-store .`
+2. Create a `.env` file with the following vars
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - `AWS_REGION`
+  - `DYNAMODB_TABLE`
+  - `PORT` (Optional. Default: 3000)
+3. Run the docker container
+  - `docker run -p 3000:3000 --env-file './.env' event-store`
 
 ## Architecture
 
