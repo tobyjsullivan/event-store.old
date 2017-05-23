@@ -3,7 +3,7 @@
 The service provides a simple HTTP API which allows
 committing events to a persisted log. This is the command service.
 Consuming the event log should be managed through a different query
-service. No such query service has been built at time of writing.
+service (such as [event-reader](https://github.com/tobyjsullivan/event-reader)).
 
 ## Getting Started
 
